@@ -81,22 +81,22 @@ class GNN_MOExp(Explainer):
         first_subgraph = G.subgraph(selected_node_index)
         G_i_list = []
         G_i_list.append(first_subgraph)
-        i = 0
-        while i<len(dfs_edge_list):
+        
+        for i in range(len(dfs_edge_list)):
             edges_in_subgraph = dfs_edge_list[:i+1]
             next_subgraph = nx.Graph()
             next_subgraph.add_edges_from(edges_in_subgraph)
             # Per porre il limite a C nodi come nell'articolo
             if len(next_subgraph.nodes)<=C:
                 G_i_list.append(next_subgraph)
-            i += 1
+            
         
         # Costruzione della lista delle y_i_prime dell'articolo (nello spazio log) e delle liste delle metriche nu(G_i) e mu(G_i, G_i_tilde)
         nu_list = []
         mu_list = []
         log_y_i_prime_list = []
-        i = 0
-        while i<len(G_i_list):
+        
+        for i in range(len(G_i_list)):
             subgraph_adjacency_matrix = nx.adjacency_matrix(G_i_list[i]).toarray() + np.transpose(nx.adjacency_matrix(G_i_list[i]).toarray())
             subgraph_node_features = [node_features_matrix[j] for j in G_i_list[i].nodes]
             subgraph_graph_instance = GraphInstance(id=-i, data=np.array(subgraph_adjacency_matrix), node_features=np.array(subgraph_node_features), label=0)
@@ -118,7 +118,7 @@ class GNN_MOExp(Explainer):
                 mu_list.append(mu_G_i_G_i_tilde)
                 j += 1
 
-            i += 1
+    
         
         # Ricapitolando:
         # Si parte dall'instance G e da un suo nodo da spiegare
@@ -170,10 +170,9 @@ class GNN_MOExp(Explainer):
         ordered_mu_list = sorted(mu_list, reverse=True)
 
         # Aggiungere ad ogni sottolista di candidates il valore di R=r1+r2
-        i = 0
-        while i<len(candidates):
+        for i in range(len(candidates)):
             candidates[i].append(ordered_nu_list.index(candidates[i][2]) + ordered_mu_list.index(candidates[i][3]))
-            i += 1
+            
          
         # Ordinare rispetto ad R (R basso = metriche elevate). R è sostanzialmente la posizione "in classifica"
         ordered_candidates = sorted(candidates, key=itemgetter(4))
